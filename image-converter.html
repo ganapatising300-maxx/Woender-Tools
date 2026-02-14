@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premium Image Converter</title>
+
+<style>
+:root {
+    --bg-color: #1E1E2F;
+    --text-color: #EAEAEA;
+    --header-bg: #2B2D42;
+    --accent-color: #FFD700;
+    --accent-hover: #E6C200;
+    --card-bg: #3A3D5B;
+    --dark-navy: #1E1E2F;
+}
+
+/* Global */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header */
+header {
+    background: var(--header-bg);
+    padding: 20px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* Main Layout */
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Tool Card */
+.tool-card {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 10px 25px rgba(255, 215, 0, 0.2);
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.tool-card:hover {
+    background: var(--accent-color);
+    color: var(--dark-navy);
+}
+
+/* Upload Area */
+.upload-area {
+    border: 2px dashed var(--accent-color);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.upload-area:hover {
+    background: rgba(255, 215, 0, 0.1);
+}
+
+/* Select + Button */
+select, button {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: none;
+    font-size: 16px;
+}
+
+/* Button */
+button {
+    background: var(--accent-color);
+    color: var(--dark-navy);
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+button:hover {
+    background: var(--accent-hover);
+}
+
+/* Image Preview */
+img {
+    max-width: 100%;
+    margin-top: 15px;
+    border-radius: 8px;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 15px;
+    background: var(--header-bg);
+    font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .tool-card {
+        padding: 20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    ✨ Premium Image Converter
+</header>
+
+<main>
+    <div class="tool-card">
+
+        <div class="upload-area" id="uploadArea">
+            Click or Drag & Drop Image Here
+            <input type="file" id="fileInput" accept="image/*" hidden>
+        </div>
+
+        <select id="formatSelect">
+            <option value="image/png">Convert to PNG</option>
+            <option value="image/jpeg">Convert to JPG</option>
+            <option value="image/webp">Convert to WEBP</option>
+        </select>
+
+        <button onclick="convertImage()">Convert Image</button>
+
+        <a id="downloadLink" style="display:none;">
+            <button>Download Converted Image</button>
+        </a>
+
+        <img id="preview" style="display:none;">
+    </div>
+</main>
+
+<footer>
+    © 2026 Premium Image Tools
+</footer>
+
+<script>
+const fileInput = document.getElementById("fileInput");
+const uploadArea = document.getElementById("uploadArea");
+const preview = document.getElementById("preview");
+const downloadLink = document.getElementById("downloadLink");
+let uploadedImage = null;
+
+// Click upload
+uploadArea.addEventListener("click", () => fileInput.click());
+
+// File selection
+fileInput.addEventListener("change", handleFile);
+
+// Drag & Drop
+uploadArea.addEventListener("dragover", e => {
+    e.preventDefault();
+    uploadArea.style.background = "rgba(255,215,0,0.2)";
+});
+
+uploadArea.addEventListener("dragleave", () => {
+    uploadArea.style.background = "transparent";
+});
+
+uploadArea.addEventListener("drop", e => {
+    e.preventDefault();
+    uploadArea.style.background = "transparent";
+    const file = e.dataTransfer.files[0];
+    handleFile({ target: { files: [file] } });
+});
+
+function handleFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        uploadedImage = new Image();
+        uploadedImage.src = e.target.result;
+        preview.src = e.target.result;
+        preview.style.display = "block";
+    }
+    reader.readAsDataURL(file);
+}
+
+function convertImage() {
+    if (!uploadedImage) {
+        alert("Please upload an image first!");
+        return;
+    }
+
+    const format = document.getElementById("formatSelect").value;
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = uploadedImage.width;
+    canvas.height = uploadedImage.height;
+
+    ctx.drawImage(uploadedImage, 0, 0);
+
+    const convertedData = canvas.toDataURL(format, 0.9);
+
+    downloadLink.href = convertedData;
+    downloadLink.download = "converted-image";
+    downloadLink.style.display = "block";
+}
+</script>
+
+</body>
+</html>
